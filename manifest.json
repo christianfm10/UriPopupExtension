@@ -1,0 +1,33 @@
+{
+    "manifest_version": 3,
+    "name": "Pump.fun Mint Info",
+    "version": "1.0.0",
+    "description": "Muestra información de tokens de pump.fun al pasar el cursor sobre direcciones de mint",
+    "content_scripts": [
+        {
+            "matches": [
+                "https://axiom.trade/*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "css": [
+                "popup.css"
+            ],
+            "run_at": "document_end"
+        }
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "permissions": [],
+    "host_permissions": [
+        "https://frontend-api-v3.pump.fun/*"
+    ],
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "pump-fun-mint-info@example.com",
+            "strict_min_version": "109.0"
+        }
+    }
+}
