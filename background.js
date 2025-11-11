@@ -8,9 +8,8 @@
 // Listener para mensajes desde el content script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'fetchTokenInfo') {
-        // Hacer la petición a la API
-        console.log('🔄 Fetching token info for mint:', request.mintAddress);
-        fetchTokenInfo(request.mintAddress)
+        // Hacer la petición a la API y luego al metadata_uri
+        fetchTokenMetadata(request.mintAddress)
             .then(data => {
                 sendResponse({ success: true, data: data });
             })
@@ -24,23 +23,54 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 /**
+ * Obtiene el metadata completo del token
+ * Primero hace la petición a pump.fun, extrae el metadata_uri, y luego obtiene los metadatos
+ * @param {string} mintAddress - Dirección del mint
+ * @returns {Promise<object>} - Metadatos del token
+ */
+async function fetchTokenMetadata(mintAddress) {
+    try {
+        // 1. Obtener información inicial del token
+        const tokenInfo = await fetchTokenInfo(mintAddress);
+
+        // 2. Extraer metadata_uri
+        if (!tokenInfo.metadata_uri) {
+            throw new Error('metadata_uri no encontrado en la respuesta');
+        }
+
+        console.log('� Metadata URI found:', tokenInfo.metadata_uri);
+
+        // 3. Hacer petición al metadata_uri
+        const metadataResponse = await fetch(tokenInfo.metadata_uri);
+
+        if (!metadataResponse.ok) {
+            throw new Error(`HTTP error al obtener metadata! status: ${metadataResponse.status}`);
+        }
+
+        const metadata = await metadataResponse.json();
+        console.log('✅ Successfully fetched metadata:', metadata);
+
+        return metadata;
+    } catch (error) {
+        console.error('Error fetching token metadata:', error);
+        throw error;
+    }
+}
+
+/**
  * Realiza una petición GET a la API de pump.fun
  * @param {string} mintAddress - Dirección del mint
  * @returns {Promise<object>} - Datos del token
  */
 async function fetchTokenInfo(mintAddress) {
     const url = `https://frontend-api-v3.pump.fun/coins/${mintAddress}`;
-    console.log('🌐 Fetching from URL:', url);
 
     try {
         const response = await fetch(url);
-        console.log('📥 Response status:', response.status);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        console.log('✅ Successfully fetched token info');
-        console.log('📄 Response data:', await response.clone().json());
 
         return await response.json();
     } catch (error) {

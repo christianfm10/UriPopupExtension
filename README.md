@@ -81,7 +81,10 @@ Configuración de la extensión con:
 Service worker en segundo plano:
 - Maneja peticiones a la API sin restricciones CORS
 - Recibe mensajes desde el content script
-- Retorna datos del token al content script
+- Hace petición inicial a pump.fun API para obtener información básica
+- Extrae el `metadata_uri` de la respuesta
+- Hace segunda petición al `metadata_uri` para obtener metadatos completos
+- Retorna los metadatos del token al content script
 - Los service workers tienen permisos especiales para evitar CORS
 
 ### content.js
@@ -106,10 +109,12 @@ Estilos del popup:
 1. **Detección:** Al hacer hover sobre cualquier elemento, el script busca el enlace más cercano (`<a>`)
 2. **Extracción:** Analiza el atributo `href` para detectar URLs de pump.fun con el patrón: `https://pump.fun/coin/[mint]`
 3. **Validación:** La dirección debe ser base58 válida (28-44 caracteres) y terminar en "pump"
-4. **Petición API:** El content script envía un mensaje al background worker, que hace el GET a la API sin restricciones CORS
-5. **Respuesta:** El background worker retorna los datos al content script
-6. **Visualización:** Se muestra el JSON formateado en un popup flotante posicionado cerca del cursor
-7. **Cierre:** El popup se cierra al quitar el mouse o al hacer scroll
+4. **Petición API inicial:** El content script envía un mensaje al background worker, que hace GET a `https://frontend-api-v3.pump.fun/coins/[mint]`
+5. **Extracción metadata_uri:** El background worker extrae el campo `metadata_uri` del JSON recibido
+6. **Petición metadata:** Hace una segunda petición al `metadata_uri` para obtener información detallada del token
+7. **Respuesta:** El background worker retorna los metadatos completos al content script
+8. **Visualización:** Se muestran los metadatos en formato JSON en un popup flotante posicionado cerca del cursor
+9. **Cierre:** El popup se cierra al quitar el mouse o al hacer scroll
 
 ## 🎨 Personalización
 
