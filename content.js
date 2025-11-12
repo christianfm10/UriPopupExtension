@@ -9,6 +9,10 @@
 // Compatibilidad Chrome/Firefox
 const browserAPI = typeof chrome !== 'undefined' ? chrome : browser;
 
+// Log debugger
+const DEBUG = false;
+const log = (...args) => DEBUG && console.log(...args);
+
 // Estado global para controlar el popup activo
 let activePopup = null;
 let currentMintAddress = null;
@@ -31,7 +35,7 @@ function extractMintFromUrl(url) {
     if (!url) return null;
 
     // Regex para URLs de pump.fun: https://pump.fun/coin/[mint]
-    const urlPattern = /https?:\/\/pump\.fun\/coin\/([1-9A-HJ-NP-Za-km-z]{28,44}pump)/i;
+    const urlPattern = /https?:\/\/pump\.fun\/coin\/([1-9A-HJ-NP-Za-km-z]{28,50})/i;
     const match = url.match(urlPattern);
 
     if (match && match[1]) {
@@ -69,7 +73,7 @@ async function fetchTokenInfo(mintAddress) {
         browserAPI.runtime.sendMessage(
             { action: 'fetchTokenInfo', mintAddress: mintAddress },
             (response) => {
-                console.log('🔔 Received response from background:', response);
+                log('🔔 Received response from background:', response);
                 if (browserAPI.runtime.lastError) {
                     reject(new Error(browserAPI.runtime.lastError.message));
                     return;
@@ -92,7 +96,10 @@ async function fetchTokenInfo(mintAddress) {
  * @param {MouseEvent} event - Evento del mouse para posicionar el popup
  */
 function showPopup(data, element, event) {
-    console.log('💡 Showing popup with data:', data);
+    log('💡 Showing popup with data:', data);
+    // Added size of object data
+    data.size = Object.keys(data).length;
+
     // Eliminar popup existente si lo hay
     removePopup();
 
@@ -283,8 +290,6 @@ async function handleMouseOver(event) {
 
             // Obtener información del token
             const data = await fetchTokenInfo(targetMintAddress);
-            console.log('✅ Fetched token info for mint:', targetMintAddress, data);
-            console.log(currentMintAddress, targetMintAddress);
 
             // Verificar que seguimos sobre el mismo mint
             if (mintAddress === targetMintAddress) {
