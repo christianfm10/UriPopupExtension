@@ -6,6 +6,9 @@
  * del token obtenida desde la API de pump.fun.
  */
 
+// Compatibilidad Chrome/Firefox
+const browserAPI = typeof chrome !== 'undefined' ? chrome : browser;
+
 // Estado global para controlar el popup activo
 let activePopup = null;
 let currentMintAddress = null;
@@ -63,12 +66,12 @@ function extractPumpMintFromLink(element) {
  */
 async function fetchTokenInfo(mintAddress) {
     return new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage(
+        browserAPI.runtime.sendMessage(
             { action: 'fetchTokenInfo', mintAddress: mintAddress },
             (response) => {
                 console.log('🔔 Received response from background:', response);
-                if (chrome.runtime.lastError) {
-                    reject(new Error(chrome.runtime.lastError.message));
+                if (browserAPI.runtime.lastError) {
+                    reject(new Error(browserAPI.runtime.lastError.message));
                     return;
                 }
 

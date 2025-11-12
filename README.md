@@ -31,12 +31,18 @@ Esta extensión detecta automáticamente enlaces a pump.fun cuando pasas el curs
 ### Firefox
 
 1. Descarga o clona este repositorio
-2. Abre Firefox y ve a `about:debugging#/runtime/this-firefox`
-3. Haz clic en "Cargar complemento temporal..."
-4. Navega hasta la carpeta de la extensión y selecciona el archivo `manifest.json`
-5. La extensión se cargará temporalmente (se eliminará al cerrar Firefox)
+2. **Renombra `manifest-firefox.json` a `manifest.json`** (o elimina el `manifest.json` actual y renombra el de Firefox)
+3. Abre Firefox y ve a `about:debugging#/runtime/this-firefox`
+4. Haz clic en "Cargar complemento temporal..."
+5. Navega hasta la carpeta de la extensión y selecciona el archivo `manifest.json`
+6. La extensión se cargará temporalmente (se eliminará al cerrar Firefox)
+7. **Importante:** Asegúrate de recargar la página de axiom.trade después de cargar la extensión
 
-**Nota para Firefox:** Para una instalación permanente, necesitas empaquetar y firmar la extensión a través de [AMO (addons.mozilla.org)](https://addons.mozilla.org/developers/).
+**Nota:** Firefox requiere Manifest V2 con `background.scripts` en lugar de `service_worker`. Por eso necesitas usar `manifest-firefox.json`.
+
+**Para instalación permanente:** Necesitas empaquetar y firmar la extensión a través de [AMO (addons.mozilla.org)](https://addons.mozilla.org/developers/).
+
+**Compatibilidad:** La extensión usa un polyfill para funcionar tanto con la API de Chrome (`chrome`) como con la de Firefox (`browser`).
 
 ## 📖 Uso
 
@@ -60,10 +66,11 @@ Esta extensión detecta automáticamente enlaces a pump.fun cuando pasas el curs
 
 ```
 UriPopup/
-├── manifest.json    # Configuración de la extensión (Manifest V3)
-├── background.js    # Service worker para peticiones API sin CORS
-├── content.js       # Script principal con lógica de detección
-├── popup.css        # Estilos del popup flotante
+├── manifest.json          # Configuración para Chrome (Manifest V3)
+├── manifest-firefox.json  # Configuración para Firefox (Manifest V2)
+├── background.js          # Service worker para peticiones API sin CORS
+├── content.js             # Script principal con lógica de detección
+├── popup.css              # Estilos del popup flotante
 └── README.md        # Este archivo
 ```
 

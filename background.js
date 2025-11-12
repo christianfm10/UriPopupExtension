@@ -5,8 +5,11 @@
  * ya que los service workers de extensiones tienen privilegios especiales.
  */
 
+// Compatibilidad Chrome/Firefox
+const browserAPI = typeof chrome !== 'undefined' ? chrome : browser;
+
 // Listener para mensajes desde el content script
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'fetchTokenInfo') {
         // Hacer la petición a la API y luego al metadata_uri
         fetchTokenMetadata(request.mintAddress)
